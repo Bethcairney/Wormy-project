@@ -31,6 +31,7 @@ BLUE      = (  0,   0, 255)
 AQUA      = ( 51, 255, 255)
 PINK      = (255,   0, 212)
 LIGHTPINK = (255, 102, 255)
+ORANGE    = (255, 127, 0)
 BGCOLOR = BLACK
 
 UP = 'up'
@@ -66,6 +67,7 @@ def runGame():
 
     # Start the apple in a random place.
     apple = getRandomLocation()
+    orange = getRandomLocation()
 
     while True: # main game loop
         for event in pygame.event.get(): # event handling loop
@@ -89,11 +91,16 @@ def runGame():
         for wormBody in wormCoords[1:]:
             if wormBody['x'] == wormCoords[HEAD]['x'] and wormBody['y'] == wormCoords[HEAD]['y']:
                 return # game over
+            
+            if wormCoords[HEAD]['x'] == orange['x'] and wormCoords[HEAD]['y'] == orange['y']:
+            del wormCoords[-1]
+            orange = getRandomLocation()
 
         # check if worm has eaten an apply
         if wormCoords[HEAD]['x'] == apple['x'] and wormCoords[HEAD]['y'] == apple['y']:
             # don't remove worm's tail segment
             apple = getRandomLocation() # set a new apple somewhere
+            orange = getRandomLocation()
         else:
             del wormCoords[-1] # remove worm's tail segment
 
@@ -111,6 +118,7 @@ def runGame():
         drawGrid()
         drawWorm(wormCoords)
         drawApple(apple)
+        drawOrange(orange)
         drawScore(len(wormCoords) - 3)
         pygame.display.update()
         FPSCLOCK.tick(FPS)
@@ -209,7 +217,14 @@ def drawWorm(wormCoords):
         pygame.draw.rect(DISPLAYSURF, PINK, wormSegmentRect)
         wormInnerSegmentRect = pygame.Rect(x + 4, y + 4, CELLSIZE - 8, CELLSIZE - 8)
         pygame.draw.rect(DISPLAYSURF, LIGHTPINK, wormInnerSegmentRect)
-
+        if (len(wormCoords) <= 2):
+            showGameOverScreen()
+            
+def drawOrange(coord):
+    x = coord['x']*CELLSIZE
+    y = coord['y']*CELLSIZE
+    orangeRect = pygame.Rect(x, y, CELLSIZE, CELLSIZE)
+    pygame.draw.rect(DISPLAYSURF, ORANGE, orangeRect)
 
 def drawApple(coord):
     x = coord['x'] * CELLSIZE
